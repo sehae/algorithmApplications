@@ -34,21 +34,23 @@ def fibonacci_search(arr, x):
 
     return -1
 
-with open('cleaned_ingredients.csv', 'r') as csvfile:
-    reader = csv.reader(csvfile)
+csv_files = ['cleaned_ingredients.csv', 'ingredient_6L.csv', 'unique_indexed_ingredients.csv']
+encodings = ['utf-8', 'iso-8859-1', 'cp1252']
+target = "Pinch of asafoetida salt, to taste"
+headers = ['Descrip', 'name', 'descrip']
 
-    next(reader, None)
-
-    descriptions = []
-
-    for row in reader:
-        descriptions.append(row[1])
-
-descriptions.sort()
-target = "butter oil anhydrous"
-index = fibonacci_search(descriptions, target)
-
-if index != -1:
-    print(f"Found at index {index}.")
-else:
-    print("Not found.")
+for file, header in zip(csv_files, headers):
+    for encoding in encodings:
+        try:
+            with open(file, 'r', encoding=encoding) as csvfile:
+                reader = csv.DictReader(csvfile)
+                descriptions = [' '.join(row[header].split()) for row in reader if header in row and row[header] is not None]
+            descriptions.sort()
+            index = fibonacci_search(descriptions, target)
+            if index != -1:
+                print(f"Found in {file} at index {index}.")
+            else:
+                print(f"Not found in {file}.")
+            break
+        except UnicodeDecodeError:
+            pass
