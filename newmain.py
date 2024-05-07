@@ -9,8 +9,9 @@ encodings = ['utf-8', 'iso-8859-1', 'cp1252']
 headers = ['Descrip']
 
 print("Available row limits:")
-row_limits = [1000, 3000, 'all']
-for i, limit in enumerate(row_limits, 1):
+printedrow_limits = ["1000", "3000", 'all(9320)']
+row_limits = [1000, 9000, 'all']
+for i, limit in enumerate(printedrow_limits, 1):
     print(f"{i}. {limit}")
 limit_choice = int(input("Enter the number of the row limit you want to select: ")) - 1
 
@@ -48,6 +49,12 @@ for file, header in zip(csv_files, headers):
 
 rows.sort()
 
+nodup=[]
+
+nodup = list(dict.fromkeys(rows))
+
+rows = nodup
+
 def ternaryfunc(key):
     
     tracemalloc.start()
@@ -59,6 +66,8 @@ def ternaryfunc(key):
     p = ternarySearch(1, len(rows), key, rows)
     # Print the result
     print("Index of", key, "is", p)
+    if(p != -1):
+        print("Value at index", p , "is", rows[p])
     
     end_memory = tracemalloc.take_snapshot()
     end_time = time.perf_counter()
@@ -68,6 +77,7 @@ def ternaryfunc(key):
 
     print(f"Time consumed: {time_consumed} seconds")
     print(f"Memory used: {memory_used} bytes")
+    
 
     tracemalloc.stop()
 
@@ -105,9 +115,10 @@ def skiplistfunc(target_value):
     skip_list = SkipList()
 
     # Insert the sorted items into the skip list
+    print("Inserting items into skiplist")
     for row in rows:
         skip_list.insert(row)
-
+    print("Process complete.")
     # Start time and memory counter
     tracemalloc.start()
 
@@ -115,8 +126,9 @@ def skiplistfunc(target_value):
     start_memory = tracemalloc.take_snapshot()
 
     # Search for the target value in the skip list
-    if skip_list.contains(target_value):
-        print(f"Found '{target_value}' in the skip list")
+    found, index = skip_list.contains(target_value)
+    if found:
+        print(f"Found '{target_value}' in the skip list at index {index}")
     else:
         print(f"'{target_value}' not found in the skip list")
 
@@ -145,6 +157,7 @@ def linearsearchfunc(target):
         print(f"{target} not found.")
     else:
         print(f"{target} found at index {index}.")
+        print("Value at index", target , "is", rows[index])
         
     end_memory = tracemalloc.take_snapshot()
     end_time = time.perf_counter()
@@ -174,6 +187,7 @@ def fibofunc(target):
 
     if index != -1:
         print(f"Found at index {index}.")
+        print("Value at index", index, "is", rows[index])
     else:
         print("Not found.")
         
@@ -246,7 +260,16 @@ class SkipList:
         return None
 
     def contains(self, elem, update=None):
-        return self.find(elem, update) != None
+        node = self.find(elem, update)
+        if node:
+            index = 0
+            x = self.head
+            while x.next[0] != node:
+                index += 1
+                x = x.next[0]
+            return True, index
+        else:
+            return False, -1
 
     def randomHeight(self):
         height = 1
@@ -280,10 +303,6 @@ class SkipList:
                 _node.next[i] = x.next[i]
                 x.next[i] = _node
             self.len += 1
-            
-            
-            
-            
             
 def main():
     print("Welcome to the program!")
